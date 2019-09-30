@@ -4,3 +4,5 @@ To run just type in `python cave_maker.py CAVE_HEIGHT CAVE_LENGTH MIN_CAVE_GAP`.
 If you get an error try changing your input arguments so that the output can fit into your terminal window.
 
 hit CTRL+c to stop at any time
+
+note, this depends on curses (python wrapper for ncurses) and has limited support for Microsoft Windows.
