@@ -5,6 +5,13 @@ from random import random
 
 
 class CaveSlice:
+    """
+    CaveSlice is a single verticle slice of the cave. Put together in series,
+    This makes up the entirety of the cave.  It exposes convenience methods
+    to raise and lower the ceiling and the floor and also contains the logic
+    to prevent these actions from being nonesensicle.
+    """
+
     def __init__(self, max_height, min_opening, ceiling=None, floor=0):
         self.max_height = max_height
         self.min_opening = min_opening
@@ -50,6 +57,13 @@ class CaveSlice:
 
 
 class Cave:
+    """
+    Cave is the primary object that models our 'cave' and is composed
+    as a list of CaveSlices.  Cave also implements iterator and provides
+    an endless scrolling cave in buffer frames that remove the first most slice
+    and appends a new randomly generated slice in each iterator 'step'.
+    """
+
     def __init__(self, max_height=10, width=10, min_opening=3):
         self.max_height = max_height
         self.min_opening = min_opening
@@ -101,7 +115,7 @@ def main(stdscr, height, length, min_opening):
         stdscr.clear()
         stdscr.addstr(str(next(cave)))
         stdscr.refresh()
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     curses.nocbreak()
     stdscr.keypad(False)
