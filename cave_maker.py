@@ -3,6 +3,8 @@ import sys
 import time
 from random import random
 
+SHIP_CHAR = "x"
+
 
 class CaveSlice:
     """
@@ -19,6 +21,7 @@ class CaveSlice:
         if ceiling is not None:
             self.ceiling = ceiling
         self.floor = floor
+        self.ship_position = None
 
     def build_slice(self):
         out = []
@@ -26,6 +29,8 @@ class CaveSlice:
         for i in reversed(range(self.max_height)):
             if i == self.ceiling or i == self.floor:
                 out.append("_")
+            elif i is self.ship_position:
+                out.append(SHIP_CHAR)
             else:
                 out.append(" ")
 
@@ -64,10 +69,12 @@ class Cave:
     and appends a new randomly generated slice in each iterator 'step'.
     """
 
-    def __init__(self, max_height=10, width=10, min_opening=3):
+    def __init__(self, max_height=10, width=10, min_opening=3, ship=None):
         self.max_height = max_height
         self.min_opening = min_opening
         self.cave_buffer = [self.init_cave_slice() for _ in range(width)]
+        self.ship = ship
+        self.key_frame = width // 5
 
     def init_cave_slice(self):
         return CaveSlice(self.max_height, self.min_opening)
@@ -106,16 +113,57 @@ class Cave:
         return "\n".join(["".join(line) for line in out])
 
 
+class Ship:
+    def __init__(self, cave):
+        self.cave = cave
+        self.position = cave.max_height // 2
+        self.last_thrust = 0
+        self.has_crashed = False
+
+    def thrust(self):
+        self.position += 2
+        self.last_thrust = 0
+
+    def fall(self):
+        if self.has_crashed:
+            return
+
+        self.position = self.position - self.last_thrust ** 2
+        if self.position < 0:
+            self.position = 0
+        self.last_thrust += 1
+
+    def plot_position(self):
+        frame = self.cave.cave_buffer[self.cave.key_frame]
+        frame.ship_position = self.position
+
+    def clear(self):
+        frame = self.cave.cave_buffer[self.cave.key_frame - 1]
+        frame.ship_position = None
+
+    def crash(self):
+        self.has_crashed = True
+
+
 def main(stdscr, height, length, min_opening):
     curses.noecho()
     curses.cbreak()
-
+    stdscr.nodelay(1)
     cave = Cave(height, length, min_opening)
+    ship = Ship(cave)
     while True:
         stdscr.clear()
+        if stdscr.getch() == -1:
+            ship.fall()
+        else:
+            ship.thrust()
+        ship.plot_position()
+        ship.clear()
         stdscr.addstr(str(next(cave)))
         stdscr.refresh()
-        time.sleep(0.05)
+        time.sleep(0.2)
+        if ship.has_crashed:
+            sys.exit(0)
 
     curses.nocbreak()
     stdscr.keypad(False)
