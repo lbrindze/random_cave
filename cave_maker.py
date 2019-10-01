@@ -163,7 +163,7 @@ def main(stdscr, height, length, min_opening):
         ship.clear()
         stdscr.addstr(str(next(cave)))
         stdscr.refresh()
-        time.sleep(0.1)
+        time.sleep(0.07)
         if ship.has_crashed:
             sys.exit(0)
 
