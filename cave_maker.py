@@ -3,7 +3,7 @@ import sys
 import time
 from random import random
 
-SHIP_CHAR = "x"
+SHIP_CHAR = "🚀"
 
 
 class CaveSlice:
@@ -128,13 +128,15 @@ class Ship:
         if self.has_crashed:
             return
 
-        self.position = self.position - self.last_thrust ** 2
+        self.position = self.position - int(self.last_thrust * 1.5)
         if self.position < 0:
             self.position = 0
         self.last_thrust += 1
 
     def plot_position(self):
         frame = self.cave.cave_buffer[self.cave.key_frame]
+        if self.position >= frame.ceiling or self.position <= frame.floor:
+            self.crash()
         frame.ship_position = self.position
 
     def clear(self):
@@ -161,7 +163,7 @@ def main(stdscr, height, length, min_opening):
         ship.clear()
         stdscr.addstr(str(next(cave)))
         stdscr.refresh()
-        time.sleep(0.2)
+        time.sleep(0.1)
         if ship.has_crashed:
             sys.exit(0)
 
